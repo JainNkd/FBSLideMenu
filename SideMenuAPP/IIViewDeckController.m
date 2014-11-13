@@ -1001,163 +1001,168 @@ static NSTimeInterval durationToAnimate(CGFloat pointsToAnimate, CGFloat velocit
 
 #pragma mark - Rotation IOS6
 
-- (BOOL)shouldAutorotate {
-    _preRotationSize = self.referenceBounds.size;
-    _preRotationCenterSize = self.centerView.bounds.size;
-    _willAppearShouldArrangeViewsAfterRotation = self.interfaceOrientation;
-    
-    // give other controllers a chance to act on it too
-    [self relayRotationMethod:^(UIViewController *controller) {
-        [controller shouldAutorotate];
-    }];
-
-    return !self.centerController || [self.centerController shouldAutorotate];
-}
-
-- (NSUInteger)supportedInterfaceOrientations {
-    if (self.centerController)
-        return [self.centerController supportedInterfaceOrientations];
-    
-    return [super supportedInterfaceOrientations];
-}
-
-- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
-    if (self.centerController)
-        return [self.centerController preferredInterfaceOrientationForPresentation];
-    
-    return [super preferredInterfaceOrientationForPresentation];
-}
-
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+-(BOOL)shouldAutorotate
 {
-    _preRotationSize = self.referenceBounds.size;
-    _preRotationCenterSize = self.centerView.bounds.size;
-    _preRotationIsLandscape = UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
-    _willAppearShouldArrangeViewsAfterRotation = interfaceOrientation;
-    
-    // give other controllers a chance to act on it too
-    [self relayRotationMethod:^(UIViewController *controller) {
-        [controller shouldAutorotateToInterfaceOrientation:interfaceOrientation];
-    }];
-
-    return !self.centerController || [self.centerController shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+    return NO;
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    [self arrangeViewsAfterRotation];
-    
-    [self relayRotationMethod:^(UIViewController *controller) {
-        [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }];
-
-    [self applyCenterViewCornerRadiusAnimated:YES];
-    [self applyShadowToSlidingViewAnimated:YES];
-}
-
-
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    
-    if (_preRotationSize.width == 0) {
-        _preRotationSize = self.referenceBounds.size;
-        _preRotationCenterSize = self.centerView.bounds.size;
-        _preRotationIsLandscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
-    }
-    
-    [self relayRotationMethod:^(UIViewController *controller) {
-        [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }];
-}
-
-- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
-    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    
-    [self relayRotationMethod:^(UIViewController *controller) {
-        [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }];
-    
-    [self setAccessibilityForCenterTapper]; // update since the frame and the frame's intersection with the window will have changed
-}
-
-- (void)arrangeViewsAfterRotation {
-    _willAppearShouldArrangeViewsAfterRotation = (UIInterfaceOrientation)UIDeviceOrientationUnknown;
-    if (_preRotationSize.width <= 0 || _preRotationSize.height <= 0) return;
-    
-    CGFloat offset, max, preSize;
-    IIViewDeckSide adjustOffset = IIViewDeckNoSide;
-    if (_offsetOrientation == IIViewDeckVerticalOrientation) {
-        offset = self.slidingControllerView.frame.origin.y;
-        max = self.referenceBounds.size.height;
-        preSize = _preRotationSize.height;
-        if (self.resizesCenterView && II_FLOAT_EQUAL(offset, 0)) {
-            offset = offset + (_preRotationCenterSize.height - _preRotationSize.height);
-        }
-        if (!II_FLOAT_EQUAL(offset, 0)) {
-            if (II_FLOAT_EQUAL(offset, preSize - _ledge[IIViewDeckTopSide]))
-                adjustOffset = IIViewDeckTopSide;
-            else if (II_FLOAT_EQUAL(offset, _ledge[IIViewDeckBottomSide] - preSize))
-                adjustOffset = IIViewDeckBottomSide;
-        }
-    }
-    else {
-        offset = self.slidingControllerView.frame.origin.x;
-        max = self.referenceBounds.size.width;
-        preSize = _preRotationSize.width;
-        if (self.resizesCenterView && II_FLOAT_EQUAL(offset, 0)) {
-            offset = offset + (_preRotationCenterSize.width - _preRotationSize.width);
-        }
-        if (!II_FLOAT_EQUAL(offset, 0)) {
-            if (II_FLOAT_EQUAL(offset, preSize - _ledge[IIViewDeckLeftSide]))
-                adjustOffset = IIViewDeckLeftSide;
-            else if (II_FLOAT_EQUAL(offset, _ledge[IIViewDeckRightSide] - preSize))
-                adjustOffset = IIViewDeckRightSide;
-        }
-    }
-    
-    if (self.sizeMode != IIViewDeckLedgeSizeMode) {
-        if (_maxLedge != 0)
-            _maxLedge = _maxLedge + max - preSize;
-
-        [self setLedgeValue:_ledge[IIViewDeckLeftSide] + self.referenceBounds.size.width - _preRotationSize.width forSide:IIViewDeckLeftSide];
-        [self setLedgeValue:_ledge[IIViewDeckRightSide] + self.referenceBounds.size.width - _preRotationSize.width forSide:IIViewDeckRightSide];
-        [self setLedgeValue:_ledge[IIViewDeckTopSide] + self.referenceBounds.size.height - _preRotationSize.height forSide:IIViewDeckTopSide];
-        [self setLedgeValue:_ledge[IIViewDeckBottomSide] + self.referenceBounds.size.height - _preRotationSize.height forSide:IIViewDeckBottomSide];
-    }
-    else {
-        if (offset > 0) {
-            offset = max - preSize + offset;
-        }
-        else if (offset < 0) {
-            offset = offset + preSize - max;
-        }
-    }
-    
-    switch (adjustOffset) {
-        case IIViewDeckLeftSide:
-            offset = self.referenceBounds.size.width - _ledge[adjustOffset];
-            break;
-
-        case IIViewDeckRightSide:
-            offset = _ledge[adjustOffset] - self.referenceBounds.size.width;
-            break;
-
-        case IIViewDeckTopSide:
-            offset = self.referenceBounds.size.height - _ledge[adjustOffset];
-            break;
-
-        case IIViewDeckBottomSide:
-            offset = _ledge[adjustOffset] - self.referenceBounds.size.height;
-            break;
-
-        default:
-            break;
-    }
-    [self setSlidingFrameForOffset:offset forOrientation:_offsetOrientation animated:NO];
-    
-    _preRotationSize = CGSizeZero;
-}
-
+//- (BOOL)shouldAutorotate {
+//    _preRotationSize = self.referenceBounds.size;
+//    _preRotationCenterSize = self.centerView.bounds.size;
+//    _willAppearShouldArrangeViewsAfterRotation = self.interfaceOrientation;
+//    
+//    // give other controllers a chance to act on it too
+//    [self relayRotationMethod:^(UIViewController *controller) {
+//        [controller shouldAutorotate];
+//    }];
+//
+//    return !self.centerController || [self.centerController shouldAutorotate];
+//}
+//
+//- (NSUInteger)supportedInterfaceOrientations {
+//    if (self.centerController)
+//        return [self.centerController supportedInterfaceOrientations];
+//    
+//    return [super supportedInterfaceOrientations];
+//}
+//
+//- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+//    if (self.centerController)
+//        return [self.centerController preferredInterfaceOrientationForPresentation];
+//    
+//    return [super preferredInterfaceOrientationForPresentation];
+//}
+//
+//- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
+//{
+//    _preRotationSize = self.referenceBounds.size;
+//    _preRotationCenterSize = self.centerView.bounds.size;
+//    _preRotationIsLandscape = UIInterfaceOrientationIsLandscape([UIApplication sharedApplication].statusBarOrientation);
+//    _willAppearShouldArrangeViewsAfterRotation = interfaceOrientation;
+//    
+//    // give other controllers a chance to act on it too
+//    [self relayRotationMethod:^(UIViewController *controller) {
+//        [controller shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+//    }];
+//
+//    return !self.centerController || [self.centerController shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+//}
+//
+//- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+//    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+//    [self arrangeViewsAfterRotation];
+//    
+//    [self relayRotationMethod:^(UIViewController *controller) {
+//        [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+//    }];
+//
+//    [self applyCenterViewCornerRadiusAnimated:YES];
+//    [self applyShadowToSlidingViewAnimated:YES];
+//}
+//
+//
+//- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
+//    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+//    
+//    if (_preRotationSize.width == 0) {
+//        _preRotationSize = self.referenceBounds.size;
+//        _preRotationCenterSize = self.centerView.bounds.size;
+//        _preRotationIsLandscape = UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
+//    }
+//    
+//    [self relayRotationMethod:^(UIViewController *controller) {
+//        [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+//    }];
+//}
+//
+//- (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation {
+//    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+//    
+//    [self relayRotationMethod:^(UIViewController *controller) {
+//        [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+//    }];
+//    
+//    [self setAccessibilityForCenterTapper]; // update since the frame and the frame's intersection with the window will have changed
+//}
+//
+//- (void)arrangeViewsAfterRotation {
+//    _willAppearShouldArrangeViewsAfterRotation = (UIInterfaceOrientation)UIDeviceOrientationUnknown;
+//    if (_preRotationSize.width <= 0 || _preRotationSize.height <= 0) return;
+//    
+//    CGFloat offset, max, preSize;
+//    IIViewDeckSide adjustOffset = IIViewDeckNoSide;
+//    if (_offsetOrientation == IIViewDeckVerticalOrientation) {
+//        offset = self.slidingControllerView.frame.origin.y;
+//        max = self.referenceBounds.size.height;
+//        preSize = _preRotationSize.height;
+//        if (self.resizesCenterView && II_FLOAT_EQUAL(offset, 0)) {
+//            offset = offset + (_preRotationCenterSize.height - _preRotationSize.height);
+//        }
+//        if (!II_FLOAT_EQUAL(offset, 0)) {
+//            if (II_FLOAT_EQUAL(offset, preSize - _ledge[IIViewDeckTopSide]))
+//                adjustOffset = IIViewDeckTopSide;
+//            else if (II_FLOAT_EQUAL(offset, _ledge[IIViewDeckBottomSide] - preSize))
+//                adjustOffset = IIViewDeckBottomSide;
+//        }
+//    }
+//    else {
+//        offset = self.slidingControllerView.frame.origin.x;
+//        max = self.referenceBounds.size.width;
+//        preSize = _preRotationSize.width;
+//        if (self.resizesCenterView && II_FLOAT_EQUAL(offset, 0)) {
+//            offset = offset + (_preRotationCenterSize.width - _preRotationSize.width);
+//        }
+//        if (!II_FLOAT_EQUAL(offset, 0)) {
+//            if (II_FLOAT_EQUAL(offset, preSize - _ledge[IIViewDeckLeftSide]))
+//                adjustOffset = IIViewDeckLeftSide;
+//            else if (II_FLOAT_EQUAL(offset, _ledge[IIViewDeckRightSide] - preSize))
+//                adjustOffset = IIViewDeckRightSide;
+//        }
+//    }
+//    
+//    if (self.sizeMode != IIViewDeckLedgeSizeMode) {
+//        if (_maxLedge != 0)
+//            _maxLedge = _maxLedge + max - preSize;
+//
+//        [self setLedgeValue:_ledge[IIViewDeckLeftSide] + self.referenceBounds.size.width - _preRotationSize.width forSide:IIViewDeckLeftSide];
+//        [self setLedgeValue:_ledge[IIViewDeckRightSide] + self.referenceBounds.size.width - _preRotationSize.width forSide:IIViewDeckRightSide];
+//        [self setLedgeValue:_ledge[IIViewDeckTopSide] + self.referenceBounds.size.height - _preRotationSize.height forSide:IIViewDeckTopSide];
+//        [self setLedgeValue:_ledge[IIViewDeckBottomSide] + self.referenceBounds.size.height - _preRotationSize.height forSide:IIViewDeckBottomSide];
+//    }
+//    else {
+//        if (offset > 0) {
+//            offset = max - preSize + offset;
+//        }
+//        else if (offset < 0) {
+//            offset = offset + preSize - max;
+//        }
+//    }
+//    
+//    switch (adjustOffset) {
+//        case IIViewDeckLeftSide:
+//            offset = self.referenceBounds.size.width - _ledge[adjustOffset];
+//            break;
+//
+//        case IIViewDeckRightSide:
+//            offset = _ledge[adjustOffset] - self.referenceBounds.size.width;
+//            break;
+//
+//        case IIViewDeckTopSide:
+//            offset = self.referenceBounds.size.height - _ledge[adjustOffset];
+//            break;
+//
+//        case IIViewDeckBottomSide:
+//            offset = _ledge[adjustOffset] - self.referenceBounds.size.height;
+//            break;
+//
+//        default:
+//            break;
+//    }
+//    [self setSlidingFrameForOffset:offset forOrientation:_offsetOrientation animated:NO];
+//    
+//    _preRotationSize = CGSizeZero;
+//}
+//
 - (void)setLedgeValue:(CGFloat)ledge forSide:(IIViewDeckSide)side {
     if (_maxLedge > 0)
         ledge = MIN(_maxLedge, ledge);

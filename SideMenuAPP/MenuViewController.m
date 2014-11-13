@@ -11,6 +11,7 @@
 #import "Menu2ViewController.h"
 #import "Menu3ViewController.h"
 #import "LoginViewController.h"
+#import "CustomOrientationNavigationController.h"
 
 #import "AppDelegate.h"
 
@@ -31,6 +32,12 @@
      [self.menuTableViewObj selectRowAtIndexPath:SharedAppDelegate.selectedIndex animated:NO scrollPosition:UITableViewScrollPositionNone];
 
 }
+
+-(BOOL)shouldAutorotate
+{
+    return NO;
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -53,7 +60,7 @@
     }
     
     if(indexPath.row!=3)
-    cell.textLabel.text = [NSString stringWithFormat:@"Menu %ld",indexPath.row+1];
+    cell.textLabel.text = [NSString stringWithFormat:@"Menu %d",indexPath.row+1];
     else
     cell.textLabel.text = [NSString stringWithFormat:@"Log Out"];
     return cell;
@@ -82,7 +89,9 @@
         NSUserDefaults *defualt = [NSUserDefaults standardUserDefaults];
         [defualt setBool:NO forKey:@"LOGIN_USER"];
         LoginViewController *loginView = [self.storyboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
-        [self.viewDeckController presentViewController:loginView animated:YES completion:nil];
+        
+        UINavigationController *navBar=[[CustomOrientationNavigationController alloc] initWithRootViewController:loginView withSupportedOrientations:(UIInterfaceOrientationMaskPortrait)];
+        [self presentViewController:navBar animated:YES completion:nil];
     }
 }
 

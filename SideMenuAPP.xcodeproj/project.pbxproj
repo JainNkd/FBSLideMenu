@@ -23,6 +23,7 @@
 		8BAD66FC1A134170000767B7 /* Menu3ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BAD66FB1A134170000767B7 /* Menu3ViewController.m */; };
 		8BAD67001A1364B5000767B7 /* Menu4ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BAD66FF1A1364B5000767B7 /* Menu4ViewController.m */; };
 		8BAD67031A136866000767B7 /* LoginViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BAD67021A136866000767B7 /* LoginViewController.m */; };
+		8BB660A91A14B27B00A4392C /* CustomOrientationNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8BB660A81A14B27B00A4392C /* CustomOrientationNavigationController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,8 @@
 		8BAD66FF1A1364B5000767B7 /* Menu4ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Menu4ViewController.m; sourceTree = "<group>"; };
 		8BAD67011A136866000767B7 /* LoginViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoginViewController.h; sourceTree = "<group>"; };
 		8BAD67021A136866000767B7 /* LoginViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginViewController.m; sourceTree = "<group>"; };
+		8BB660A71A14B27B00A4392C /* CustomOrientationNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomOrientationNavigationController.h; sourceTree = "<group>"; };
+		8BB660A81A14B27B00A4392C /* CustomOrientationNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomOrientationNavigationController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +149,7 @@
 		8BAD66E21A1326AF000767B7 /* LIB */ = {
 			isa = PBXGroup;
 			children = (
+				8BB660A61A14B25C00A4392C /* Common */,
 				8BAD66E31A1326BD000767B7 /* SideMenu */,
 			);
 			name = LIB;
@@ -202,6 +206,15 @@
 				8BAD66CB1A132254000767B7 /* LaunchScreen.xib */,
 			);
 			name = StoryBoard;
+			sourceTree = "<group>";
+		};
+		8BB660A61A14B25C00A4392C /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				8BB660A71A14B27B00A4392C /* CustomOrientationNavigationController.h */,
+				8BB660A81A14B27B00A4392C /* CustomOrientationNavigationController.m */,
+			);
+			name = Common;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -313,6 +326,7 @@
 				8BAD66C21A132254000767B7 /* AppDelegate.m in Sources */,
 				8BAD66F31A1329CF000767B7 /* MenuViewController.m in Sources */,
 				8BAD67031A136866000767B7 /* LoginViewController.m in Sources */,
+				8BB660A91A14B27B00A4392C /* CustomOrientationNavigationController.m in Sources */,
 				8BAD66F61A133FA2000767B7 /* Menu1ViewController.m in Sources */,
 				8BAD66BF1A132254000767B7 /* main.m in Sources */,
 				8BAD66EC1A1326F2000767B7 /* IIWrapController.m in Sources */,

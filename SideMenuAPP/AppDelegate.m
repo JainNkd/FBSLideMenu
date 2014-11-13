@@ -12,6 +12,7 @@
 #import "IIViewDeckController.h"
 #import "MenuViewController.h"
 #import "LoginViewController.h"
+#import "CustomOrientationNavigationController.h"
 
 
 @interface AppDelegate ()
@@ -48,7 +49,10 @@
         UIStoryboard *mainStoryboard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
         [defualt setBool:YES forKey:@"LOGIN_USER"];
         LoginViewController *loginView = [mainStoryboard instantiateViewControllerWithIdentifier:@"LoginViewController"];
-        [deckController presentViewController:loginView animated:YES completion:nil];
+        
+        UINavigationController *navBar=[[CustomOrientationNavigationController alloc] initWithRootViewController:loginView withSupportedOrientations:(UIInterfaceOrientationMaskPortrait)];
+        
+        [self.centerController presentViewController:navBar animated:YES completion:nil];
         
     }
 
