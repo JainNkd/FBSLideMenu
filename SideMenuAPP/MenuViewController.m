@@ -28,7 +28,7 @@
 -(void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-     [self.menuTableViewObj selectRowAtIndexPath:SharedAppDelegate.selectedIndex animated:NO scrollPosition:UITableViewScrollPositionTop];
+     [self.menuTableViewObj selectRowAtIndexPath:SharedAppDelegate.selectedIndex animated:NO scrollPosition:UITableViewScrollPositionNone];
 
 }
 - (void)didReceiveMemoryWarning {

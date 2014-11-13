@@ -17,6 +17,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    self.title = @"Menu 1";
     // Do any additional setup after loading the view.
 }
 
